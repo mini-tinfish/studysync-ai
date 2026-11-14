@@ -27,7 +27,7 @@ function EditorLoading() {
   )
 }
 
-const KIND_LABELS = { studyGuide: 'study guide', flashcards: 'flashcards', quiz: 'practice quiz' }
+const KIND_LABELS = { studyGuide: 'study guide', flashcards: 'flashcards', quiz: 'practice quiz', chat: 'Ask My Notes conversation' }
 
 function describeKinds(kinds) {
   const labels = kinds.map((kind) => KIND_LABELS[kind] ?? kind)

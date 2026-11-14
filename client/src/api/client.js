@@ -124,3 +124,11 @@ export function generateFlashcards({ text, count }, { signal } = {}) {
 export function generateQuiz({ text, count, difficulty }, { signal } = {}) {
   return postJson('/api/quiz', { text, count, difficulty }, { signal, timeoutMs: AI_TIMEOUT_MS })
 }
+
+/**
+ * POST /api/ask — body { text, question (1–1000 chars), history?: [{ role: 'user' | 'assistant', content }] }.
+ * Returns { answer, answeredFromMaterial, citations[] }
+ */
+export function askNotes({ text, question, history }, { signal } = {}) {
+  return postJson('/api/ask', { text, question, history }, { signal, timeoutMs: AI_TIMEOUT_MS })
+}

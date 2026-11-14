@@ -23,6 +23,8 @@ export default function MaterialsProvider({ children }) {
   // Unsaved "new note" draft. A ref, not state: it only needs to survive the editor
   // unmounting (tab or page switches) and must not re-render the app on every keystroke.
   const notesDraftRef = useRef(null)
+  // Unsent Ask My Notes question per document (survives page switches, keeps a cancelled question).
+  const chatDraftsRef = useRef({})
   const getNotesDraft = useCallback(() => notesDraftRef.current, [])
   const setNotesDraft = useCallback((draft) => {
     notesDraftRef.current = draft
@@ -62,6 +64,52 @@ export default function MaterialsProvider({ children }) {
     setDocuments((current) => current.filter((doc) => doc.id !== id))
     setActiveId((current) => (current === id ? null : current))
     clearResults(id)
+    delete chatDraftsRef.current[id]
+  }, [])
+
+  // ---------- Ask My Notes conversations (stored as the 'chat' result kind) ----------
+
+  const getChatDraft = useCallback((documentId) => chatDraftsRef.current[documentId] ?? '', [])
+  const setChatDraft = useCallback((documentId, text) => {
+    if (text) chatDraftsRef.current[documentId] = text
+    else delete chatDraftsRef.current[documentId]
+  }, [])
+
+  /**
+   * Append messages (a question and its answer) to a document's conversation. Skipped —
+   * returns false — if the document was removed or its text changed since `sourceText`
+   * was sent, so an answer about old notes is never saved.
+   */
+  const appendChatMessages = useCallback((documentId, messages, { sourceText }) => {
+    const doc = documentsRef.current.find((d) => d.id === documentId)
+    if (!doc || doc.text !== sourceText) return false
+    setResults((current) => {
+      const previous = current[documentId]?.chat
+      const setId = previous?.setId ?? globalThis.crypto?.randomUUID?.() ?? `chat-${Date.now()}`
+      return {
+        ...current,
+        [documentId]: {
+          ...current[documentId],
+          chat: {
+            data: { messages: [...(previous?.data.messages ?? []), ...messages] },
+            origin: 'mixed', // each assistant message carries its own origin
+            setId,
+            generatedAt: previous?.generatedAt ?? new Date().toISOString(),
+            progress: null,
+          },
+        },
+      }
+    })
+    return true
+  }, [])
+
+  const clearChat = useCallback((documentId) => {
+    setResults((current) => {
+      if (!current[documentId]?.chat) return current
+      const rest = { ...current[documentId] }
+      delete rest.chat
+      return { ...current, [documentId]: rest }
+    })
   }, [])
 
   const selectDocument = useCallback((id) => setActiveId(id), [])
@@ -116,8 +164,16 @@ export default function MaterialsProvider({ children }) {
       getResultKinds,
       getNotesDraft,
       setNotesDraft,
+      appendChatMessages,
+      clearChat,
+      getChatDraft,
+      setChatDraft,
     }),
     [
+      appendChatMessages,
+      clearChat,
+      getChatDraft,
+      setChatDraft,
       documents,
       activeId,
       addDocument,
