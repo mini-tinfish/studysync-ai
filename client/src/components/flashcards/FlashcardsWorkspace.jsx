@@ -4,12 +4,12 @@ import { generateFlashcards } from '../../api/client'
 import { useMaterials } from '../../context/materialsContext'
 import { useGeneration } from '../../hooks/useGeneration'
 import { formatDate } from '../../utils/documents'
-import { DEFAULT_CARDS, clampCount, normalizeFlashcards } from '../../utils/flashcards'
+import { DEFAULT_CARDS, MAX_CARDS, MIN_CARDS, clampCount, normalizeFlashcards } from '../../utils/flashcards'
 import DemoButton from '../generation/DemoButton'
 import GeneratingState from '../generation/GeneratingState'
 import GenerationError from '../generation/GenerationError'
 import SourceBadge, { SourceNotice } from '../generation/SourceBadge'
-import CardCountPicker from './CardCountPicker'
+import CountPicker from '../common/CountPicker'
 import FlashcardSession from './FlashcardSession'
 
 /**
@@ -74,7 +74,7 @@ export default function FlashcardsWorkspace({ document: doc, onOpenDemo }) {
             )}
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <CardCountPicker value={count} onChange={setCount} />
+            <CountPicker label="Number of cards" value={count} onChange={setCount} min={MIN_CARDS} max={MAX_CARDS} presets={[5, 10, 20, 30]} />
             <button
               type="button"
               onClick={generate}
@@ -116,7 +116,7 @@ export default function FlashcardsWorkspace({ document: doc, onOpenDemo }) {
           Turn &ldquo;{doc.fileName}&rdquo; into question-and-answer cards you can flip through and mark as you go.
         </p>
         <div className="mt-6 flex w-full justify-center">
-          <CardCountPicker value={count} onChange={setCount} />
+          <CountPicker label="Number of cards" value={count} onChange={setCount} min={MIN_CARDS} max={MAX_CARDS} presets={[5, 10, 20, 30]} />
         </div>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <button
