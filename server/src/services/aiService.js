@@ -17,11 +17,14 @@ const RETRYABLE = new Set([429, 500, 503, 504]);
 const MODEL_GONE = 404;
 const PASSES = 2;
 const PASS_DELAY_MS = 1_500;
-// An overloaded model can take ~30 s just to return 503, so cap each attempt to leave time
-// for the fallbacks. The last model in the list gets whatever time is left.
-const ATTEMPT_CAP_MS = 20_000;
-// After a 503/429/timeout, skip that model for a while so later requests go straight to one
-// that works.
+// Time limits per attempt. The first attempt (normally the primary model) gets most of the
+// overall budget, because a long document can legitimately take 20-30 s. Later attempts are
+// capped, since an overloaded model can take ~30 s just to return 503. The very last attempt
+// gets whatever time is left.
+const FIRST_ATTEMPT_CAP_MS = 50_000;
+const FALLBACK_ATTEMPT_CAP_MS = 25_000;
+// After a 503/429, skip that model for a while so later requests go straight to one that
+// works. Slow responses (timeouts) do NOT trigger this: slow is not the same as overloaded.
 const COOLDOWN_MS = 120_000;
 const cooldownUntil = new Map();
 
@@ -42,24 +45,31 @@ function orderedModels() {
 async function callWithFallback(request) {
   const deadline = Date.now() + config.gemini.timeoutMs;
   let sawBusy = false;
+  let attempt = 0;
 
   for (let pass = 1; pass <= PASSES; pass += 1) {
     const models = orderedModels();
     for (const [i, model] of models.entries()) {
       const remaining = deadline - Date.now();
       if (remaining <= 0) break;
+      attempt += 1;
       const isLastChance = pass === PASSES && i === models.length - 1;
-      const budget = isLastChance ? remaining : Math.min(remaining, ATTEMPT_CAP_MS);
+      const cap = attempt === 1 ? FIRST_ATTEMPT_CAP_MS : FALLBACK_ATTEMPT_CAP_MS;
+      const budget = isLastChance ? remaining : Math.min(remaining, cap);
+      const started = Date.now();
       try {
         const response = await request(model, AbortSignal.timeout(budget));
         cooldownUntil.delete(model);
-        if (model !== config.gemini.model) console.warn(`[gemini] served by fallback model ${model}`);
+        const secs = ((Date.now() - started) / 1000).toFixed(1);
+        console.log(`[gemini] ${model} ok in ${secs}s${model !== config.gemini.model ? ' (fallback)' : ''}`);
         return response;
       } catch (err) {
         const status = isTimeout(err) ? 'timeout' : err?.status;
-        console.warn(`[gemini] ${model} failed (pass ${pass}):`, status ?? '', String(err?.message).slice(0, 200));
-        if (status === 'timeout' || RETRYABLE.has(status)) {
-          sawBusy ||= status !== 'timeout';
+        const secs = ((Date.now() - started) / 1000).toFixed(1);
+        console.warn(`[gemini] ${model} failed after ${secs}s (pass ${pass}):`, status ?? '', String(err?.message).slice(0, 200));
+        if (status === 'timeout') continue;
+        if (RETRYABLE.has(status)) {
+          sawBusy = true;
           cooldownUntil.set(model, Date.now() + COOLDOWN_MS);
           continue;
         }
@@ -108,7 +118,8 @@ export async function generateJson({ system, prompt, schema, history = [] }) {
     { role: 'user', parts: [{ text: prompt }] },
   ];
 
-  const response = await callWithFallback((model, signal) =>
+  const { thinkingLevel } = config.gemini;
+  const send = (model, signal, withThinking) =>
     getClient().models.generateContent({
       model,
       contents,
@@ -117,9 +128,22 @@ export async function generateJson({ system, prompt, schema, history = [] }) {
         responseMimeType: 'application/json',
         responseJsonSchema: schema,
         abortSignal: signal,
+        // Less hidden "thinking" makes responses roughly 2x faster for these simple tasks.
+        ...(withThinking && { thinkingConfig: { thinkingLevel } }),
       },
-    }),
-  );
+    });
+
+  const response = await callWithFallback(async (model, signal) => {
+    if (!thinkingLevel) return send(model, signal, false);
+    try {
+      return await send(model, signal, true);
+    } catch (err) {
+      // A model that doesn't support the thinking setting rejects it with 400: retry without.
+      if (err?.status !== 400) throw err;
+      console.warn(`[gemini] ${model} rejected thinkingLevel=${thinkingLevel}; retrying without it`);
+      return send(model, signal, false);
+    }
+  });
 
   const raw = response?.text;
   if (!raw) {

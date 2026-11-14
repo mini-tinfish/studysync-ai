@@ -56,7 +56,7 @@ Every error, on every endpoint, uses this shape:
 | Max upload size | 10 MB |
 | `text` minimum length | 50 characters |
 | `text` maximum length | 100,000 characters. Upload truncates to this length and sets `truncated: true`. |
-| AI request timeout | ~60 s. The UI should show a loading state. |
+| AI request timeout | Up to ~85 s on the server (the client waits 90 s). Typical responses take 5–20 s. The UI should show a loading state. |
 
 ### IDs
 Generated items (`flashcards[].id`, `questions[].id`) are strings that are unique within a single response. They are not stable across requests.
