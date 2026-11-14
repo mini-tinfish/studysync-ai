@@ -1,6 +1,6 @@
 # StudySync AI — API Contract
 
-**Status:** DRAFT v0.1, proposed by Agent 1 (Backend). It needs Agent 2's agreement before anyone builds against it.
+**Status:** AGREED v1.0. Both developers accepted it. The AI provider is Google Gemini.
 
 Any change to paths, request shapes, or response shapes must update this file in the same PR (see `CLAUDE.md`).
 
@@ -264,9 +264,10 @@ Answers a student's question using only the supplied material.
 
 When the server runs with `MOCK_AI=true`, every AI endpoint returns fixed sample data in exactly the shapes above, after the same input validation. The frontend can be built and demoed before an AI provider or key is chosen.
 
-## 4. Open Questions for Agent 2
+## 4. Resolved Decisions
 
-1. Does a stateless backend work for you, with the client holding `text` and re-sending it? The alternative is a server-side `documentId`, which adds storage work.
-2. Are the response shapes enough for the planned UI, e.g. does the study guide need anything beyond sections, terms, and review questions?
-3. Do you need multi-file upload for the MVP? Currently it is one file per request, and the client could concatenate texts.
-4. Do you agree on port `3001` and on the Vite proxy for `/api`, configured in `client/vite.config.*`, which you own?
+1. The backend is stateless. The client holds `text` and re-sends it with each request.
+2. The response shapes above are accepted as-is.
+3. Upload takes one file per request. The client may concatenate texts if needed.
+4. Express runs on port `3001` and Vite on `5173`. Vite proxies `/api` to the backend (`client/vite.config.js`).
+5. The AI provider is Google Gemini, configured in `server/.env` (see `server/.env.example`).
