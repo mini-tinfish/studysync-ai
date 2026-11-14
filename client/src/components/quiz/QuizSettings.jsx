@@ -41,7 +41,7 @@ export default function QuizSettings({ count, onCountChange, difficulty, onDiffi
         onChange={onCountChange}
         min={MIN_QUESTIONS}
         max={MAX_QUESTIONS}
-        presets={[5, 10, 15, 20]}
+        // Practice Quiz uses the slider and numeric value only (no quick-choice presets).
         disabled={disabled}
       />
       <DifficultyPicker value={difficulty} onChange={onDifficultyChange} disabled={disabled} />

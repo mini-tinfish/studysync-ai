@@ -16,6 +16,7 @@ export default function DocumentLibrary({
   onSelect,
   onRemove,
   onEdit,
+  onPreview,
   onClearAll,
   storageStatus,
 }) {
@@ -92,6 +93,7 @@ export default function DocumentLibrary({
                 onSelect={onSelect}
                 onRemove={onRemove}
                 onEdit={onEdit}
+                onPreview={onPreview}
               />
             </li>
           ))}

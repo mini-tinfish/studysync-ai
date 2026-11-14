@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ClipboardPaste, CloudUpload } from 'lucide-react'
+import { preloadNotesEditor } from '../notes/editorLoader'
 import UploadDropzone from './UploadDropzone'
 
 const TABS = [
@@ -61,6 +62,9 @@ export default function AddMaterialTabs({ activeTab, onTabChange, onAdded, notes
               aria-controls={`panel-${id}`}
               tabIndex={selected ? 0 : -1}
               onClick={() => setActiveTab(id)}
+              // Start loading the editor as soon as the student shows intent to open it.
+              onPointerEnter={id === 'paste' ? preloadNotesEditor : undefined}
+              onFocus={id === 'paste' ? preloadNotesEditor : undefined}
               className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition duration-200 ${
                 selected ? 'bg-white text-lavender-700 shadow-soft' : 'text-ink-500 hover:text-ink-900'
               }`}

@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { BookOpenCheck, CircleAlert, Quote, SearchX } from 'lucide-react'
 import { citationAppearsInText } from '../../utils/ask'
+import ErrorBoundary from '../common/ErrorBoundary'
 import SourceBadge from '../generation/SourceBadge'
 
 import { loadMarkdown } from './markdownLoader'
@@ -92,9 +93,12 @@ export default function ChatMessage({ message, documentText }) {
           </p>
         )}
         {/* Markdown is rendered for display only; message.content (sent as history) is unchanged. */}
+        {/* If the renderer can't load, fall back to plain text instead of breaking the chat. */}
+        <ErrorBoundary fallback={() => <PlainAnswerText text={message.content} />}>
         <Suspense fallback={<PlainAnswerText text={message.content} />}>
           <MarkdownAnswer text={message.content} />
         </Suspense>
+        </ErrorBoundary>
         <Citations citations={message.citations ?? []} documentText={documentText} />
       </div>
     </div>

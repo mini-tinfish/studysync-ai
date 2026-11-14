@@ -54,7 +54,7 @@ const COMPONENTS = {
     <pre
       tabIndex={0}
       aria-label="Code block"
-      className="my-3 overflow-x-auto rounded-xl bg-[#2b2537] p-3.5 font-mono text-[13px] leading-relaxed text-cream-100 outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-inherit [&_code]:ring-0"
+      className="my-3 overflow-x-auto rounded-xl bg-[#2b2537] p-3.5 font-mono text-[13px] leading-relaxed text-[#f1ecf7] ring-1 ring-transparent dark:bg-[#120f19] dark:ring-cream-200 outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-inherit [&_code]:ring-0"
       {...props}
     />
   ),

@@ -1,7 +1,9 @@
 import { useId } from 'react'
 
 /**
- * Number picker for generation settings: a native range input plus quick presets.
+ * Number picker for generation settings: a native range input (keyboard arrows, touch drag)
+ * with the current value shown. Pass `presets` to add quick-choice buttons (Flashcards does);
+ * omit it for a slider-only picker (Practice Quiz).
  * Always yields a value within [min, max].
  */
 export default function CountPicker({ label, value, onChange, min, max, presets = [], disabled = false }) {
