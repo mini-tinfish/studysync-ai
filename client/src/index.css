@@ -46,6 +46,40 @@
   }
 }
 
+/* Rich-text notes editor content (Tailwind's reset removes default heading/list styles). */
+@layer components {
+  .notes-content > * + * {
+    margin-top: 0.75em;
+  }
+  .notes-content h1 {
+    @apply text-2xl font-bold tracking-tight text-ink-900;
+  }
+  .notes-content h2 {
+    @apply text-xl font-bold tracking-tight text-ink-900;
+  }
+  .notes-content h3 {
+    @apply text-lg font-semibold text-lavender-800;
+  }
+  .notes-content ul {
+    @apply list-disc pl-6;
+  }
+  .notes-content ol {
+    @apply list-decimal pl-6;
+  }
+  .notes-content li > * + * {
+    margin-top: 0.25em;
+  }
+  .notes-content li::marker {
+    @apply text-lavender-500;
+  }
+  .notes-content mark {
+    @apply rounded-sm bg-amber-200/80 px-0.5 text-inherit;
+  }
+  .notes-content strong {
+    @apply font-bold;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

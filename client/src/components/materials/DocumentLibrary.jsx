@@ -2,7 +2,7 @@ import { FolderOpen } from 'lucide-react'
 import EmptyState from '../common/EmptyState'
 import DocumentCard from './DocumentCard'
 
-export default function DocumentLibrary({ documents, activeId, onSelect, onRemove }) {
+export default function DocumentLibrary({ documents, activeId, editingId, onSelect, onRemove, onEdit }) {
   return (
     <section aria-labelledby="library-title">
       <div className="mb-4 flex items-baseline justify-between gap-4">
@@ -26,7 +26,14 @@ export default function DocumentLibrary({ documents, activeId, onSelect, onRemov
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {documents.map((doc) => (
             <li key={doc.id}>
-              <DocumentCard document={doc} isActive={doc.id === activeId} onSelect={onSelect} onRemove={onRemove} />
+              <DocumentCard
+                document={doc}
+                isActive={doc.id === activeId}
+                isEditing={doc.id === editingId}
+                onSelect={onSelect}
+                onRemove={onRemove}
+                onEdit={onEdit}
+              />
             </li>
           ))}
         </ul>

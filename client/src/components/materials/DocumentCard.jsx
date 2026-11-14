@@ -1,7 +1,7 @@
-import { CircleAlert, CircleCheck, FileText, NotebookPen, Trash2 } from 'lucide-react'
+import { CircleAlert, CircleCheck, FileText, NotebookPen, PencilLine, Trash2 } from 'lucide-react'
 import { FILE_TYPE_LABELS, formatDate, formatNumber, isReadyToStudy } from '../../utils/documents'
 
-export default function DocumentCard({ document: doc, isActive, onSelect, onRemove }) {
+export default function DocumentCard({ document: doc, isActive, isEditing, onSelect, onRemove, onEdit }) {
   const ready = isReadyToStudy(doc)
   const Icon = doc.source === 'paste' ? NotebookPen : FileText
   const titleId = `doc-title-${doc.id}`
@@ -22,7 +22,13 @@ export default function DocumentCard({ document: doc, isActive, onSelect, onRemo
             {doc.fileName}
           </h3>
           <p className="mt-0.5 text-xs text-ink-400">
-            <time dateTime={doc.uploadedAt}>{formatDate(doc.uploadedAt)}</time>
+            {doc.updatedAt ? (
+              <>
+                Updated <time dateTime={doc.updatedAt}>{formatDate(doc.updatedAt)}</time>
+              </>
+            ) : (
+              <time dateTime={doc.uploadedAt}>{formatDate(doc.uploadedAt)}</time>
+            )}
           </p>
         </div>
         <button
@@ -73,13 +79,30 @@ export default function DocumentCard({ document: doc, isActive, onSelect, onRemo
 
       {doc.truncated && <p className="mt-3 text-xs text-amber-700">Trimmed to the first 100,000 characters.</p>}
 
-      <div className="mt-auto pt-5">
+      <div className="mt-auto flex gap-2 pt-5">
+        {doc.source === 'paste' && onEdit && (
+          <button
+            type="button"
+            onClick={() => onEdit(doc.id)}
+            aria-label={`Edit notes: ${doc.fileName}`}
+            aria-pressed={isEditing}
+            title="Edit notes"
+            className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition duration-200 ${
+              isEditing
+                ? 'bg-lavender-100 text-lavender-800 ring-1 ring-lavender-300'
+                : 'bg-white text-ink-700 ring-1 ring-cream-300 hover:bg-cream-100'
+            }`}
+          >
+            <PencilLine className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">{isEditing ? 'Editing' : 'Edit'}</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onSelect(doc.id)}
           disabled={!ready}
           aria-pressed={isActive}
-          className={`w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
             isActive
               ? 'bg-lavender-600 text-white shadow-soft'
               : 'bg-lavender-50 text-lavender-700 ring-1 ring-lavender-200 enabled:hover:bg-lavender-100'

@@ -16,7 +16,7 @@ import StudyGuideView from './StudyGuideView'
  * generated guide is read from the per-document results cache.
  */
 export default function StudyGuideWorkspace({ document: doc, onOpenDemo }) {
-  const { result, status, error, run, cancel } = useGeneration({ documentId: doc.id, kind: 'studyGuide' })
+  const { result, status, error, run, cancel } = useGeneration({ documentId: doc.id, kind: 'studyGuide', sourceText: doc.text })
   const titleRef = useRef(null)
 
   async function generate() {

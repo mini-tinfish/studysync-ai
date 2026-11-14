@@ -19,7 +19,7 @@ import FlashcardSession from './FlashcardSession'
  */
 export default function FlashcardsWorkspace({ document: doc, onOpenDemo }) {
   const { saveProgress } = useMaterials()
-  const { result, status, error, run, cancel } = useGeneration({ documentId: doc.id, kind: 'flashcards' })
+  const { result, status, error, run, cancel } = useGeneration({ documentId: doc.id, kind: 'flashcards', sourceText: doc.text })
   const [count, setCount] = useState(() => result?.data.requestedCount ?? DEFAULT_CARDS)
 
   const setId = result?.setId
