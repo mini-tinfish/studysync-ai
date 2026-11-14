@@ -14,6 +14,11 @@ export const config = {
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
     model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+    // Tried in order when the main model is overloaded or unavailable.
+    fallbackModels: (process.env.GEMINI_FALLBACK_MODELS ?? 'gemini-3.7-flash,gemini-3.6-flash')
+      .split(',')
+      .map((m) => m.trim())
+      .filter(Boolean),
     timeoutMs: toInt(process.env.AI_TIMEOUT_MS, 60_000),
   },
 
