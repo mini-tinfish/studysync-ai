@@ -2,8 +2,11 @@ import PageHeader from '../components/common/PageHeader'
 import QuickActions from '../components/dashboard/QuickActions'
 import RecentMaterials from '../components/dashboard/RecentMaterials'
 import UploadCard from '../components/dashboard/UploadCard'
+import { useMaterials } from '../context/materialsContext'
 
-export default function DashboardPage({ materials }) {
+export default function DashboardPage() {
+  const { documents, activeDocument } = useMaterials()
+
   return (
     <>
       <PageHeader
@@ -13,8 +16,8 @@ export default function DashboardPage({ materials }) {
       />
       <div className="space-y-10">
         <UploadCard />
-        <QuickActions hasMaterials={materials.length > 0} />
-        <RecentMaterials materials={materials} />
+        <QuickActions hasMaterials={documents.length > 0} />
+        <RecentMaterials materials={documents} activeId={activeDocument?.id ?? null} />
       </div>
     </>
   )
