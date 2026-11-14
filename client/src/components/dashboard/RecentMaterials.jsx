@@ -1,15 +1,11 @@
-import { ArrowRight, FileText, Inbox } from 'lucide-react'
+import { ArrowRight, FileText, Inbox, NotebookPen } from 'lucide-react'
 import { routeHref } from '../../config/navigation'
+import { FILE_TYPE_LABELS, formatDate } from '../../utils/documents'
 import Button from '../common/Button'
 import EmptyState from '../common/EmptyState'
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-
-/**
- * Expected material shape (frontend assumption, pending the agreed API contract):
- * { id, title, fileName, uploadedAt (ISO string) }
- */
-export default function RecentMaterials({ materials }) {
+/** `materials` are client-side documents (see utils/documents.js), newest first. */
+export default function RecentMaterials({ materials, activeId }) {
   return (
     <section aria-labelledby="recent-materials-title">
       <div className="mb-4 flex items-center justify-between gap-4">
@@ -40,20 +36,30 @@ export default function RecentMaterials({ materials }) {
         />
       ) : (
         <ul className="divide-y divide-cream-200 overflow-hidden rounded-2xl border border-cream-200 bg-white shadow-soft">
-          {materials.slice(0, 5).map((material) => (
-            <li key={material.id} className="flex items-center gap-4 p-4 transition hover:bg-lavender-50/50">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-lavender-50 text-lavender-500">
-                <FileText className="size-5" aria-hidden="true" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-ink-900">{material.title}</p>
-                <p className="truncate text-sm text-ink-500">{material.fileName}</p>
-              </div>
-              <time dateTime={material.uploadedAt} className="shrink-0 text-xs text-ink-400">
-                {dateFormatter.format(new Date(material.uploadedAt))}
-              </time>
-            </li>
-          ))}
+          {materials.slice(0, 5).map((material) => {
+            const Icon = material.source === 'paste' ? NotebookPen : FileText
+            return (
+              <li key={material.id} className="flex items-center gap-4 p-4 transition hover:bg-lavender-50/50">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-lavender-50 text-lavender-500">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-ink-900">{material.fileName}</p>
+                  <p className="truncate text-sm text-ink-500">
+                    {FILE_TYPE_LABELS[material.fileType] ?? material.fileType}
+                    {material.id === activeId && (
+                      <span className="ml-2 rounded-full bg-lavender-100 px-2 py-0.5 text-xs font-semibold text-lavender-700">
+                        Active
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <time dateTime={material.uploadedAt} className="shrink-0 text-xs text-ink-400">
+                  {formatDate(material.uploadedAt)}
+                </time>
+              </li>
+            )
+          })}
         </ul>
       )}
     </section>

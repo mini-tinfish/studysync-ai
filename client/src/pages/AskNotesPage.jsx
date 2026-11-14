@@ -1,6 +1,7 @@
 import { MessageCircleQuestionMark } from 'lucide-react'
-import FeatureEmptyState from '../components/common/FeatureEmptyState'
+import InlineAlert from '../components/common/InlineAlert'
 import PageHeader from '../components/common/PageHeader'
+import StudyMaterialGate from '../components/study/StudyMaterialGate'
 
 export default function AskNotesPage() {
   return (
@@ -10,11 +11,13 @@ export default function AskNotesPage() {
         title="Ask my notes"
         description="Ask questions and get answers grounded in the materials you've uploaded."
       />
-      <FeatureEmptyState
-        icon={MessageCircleQuestionMark}
-        title="Nothing to ask about yet"
-        description="Upload a document first. Asking questions about your notes isn't available yet."
-      />
+      <StudyMaterialGate icon={MessageCircleQuestionMark} featureName="questions about your notes">
+        {() => (
+          <InlineAlert variant="info" title="Not connected yet">
+            Asking questions about your notes isn&rsquo;t available yet. It will use this document once the AI service is connected.
+          </InlineAlert>
+        )}
+      </StudyMaterialGate>
     </>
   )
 }

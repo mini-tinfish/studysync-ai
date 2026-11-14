@@ -5,6 +5,7 @@ export default function ErrorState({
   title = 'Something went wrong',
   message = 'Please try again in a moment.',
   onRetry,
+  secondaryAction,
   className = '',
 }) {
   return (
@@ -17,15 +18,20 @@ export default function ErrorState({
       </span>
       <h3 className="text-base font-semibold text-ink-900">{title}</h3>
       <p className="mt-1 max-w-sm text-sm text-ink-500">{message}</p>
-      {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink-700 shadow-soft ring-1 ring-rose-200 transition hover:bg-rose-50"
-        >
-          <RotateCw className="size-4" aria-hidden="true" />
-          Try again
-        </button>
+      {(onRetry || secondaryAction) && (
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink-700 shadow-soft ring-1 ring-rose-200 transition hover:bg-rose-50"
+            >
+              <RotateCw className="size-4" aria-hidden="true" />
+              Try again
+            </button>
+          )}
+          {secondaryAction}
+        </div>
       )}
     </div>
   )

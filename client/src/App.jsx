@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import AppLayout from './components/layout/AppLayout'
 import { NAV_ITEMS } from './config/navigation'
+import MaterialsProvider from './context/MaterialsProvider'
 import { useHashRoute } from './hooks/useHashRoute'
 import AskNotesPage from './pages/AskNotesPage'
 import DashboardPage from './pages/DashboardPage'
@@ -17,10 +18,6 @@ const PAGES = {
   quiz: QuizPage,
   ask: AskNotesPage,
 }
-
-// No backend yet: materials stay empty so the UI shows its empty states.
-// Replace with data from the API once the contract is agreed.
-const materials = []
 
 export default function App() {
   const [route] = useHashRoute()
@@ -42,8 +39,12 @@ export default function App() {
   }, [route])
 
   return (
-    <AppLayout activeRoute={route}>
-      <Page materials={materials} />
-    </AppLayout>
+    // MaterialsProvider sits above the pages so documents and the active selection
+    // survive navigation between views.
+    <MaterialsProvider>
+      <AppLayout activeRoute={route}>
+        <Page />
+      </AppLayout>
+    </MaterialsProvider>
   )
 }
