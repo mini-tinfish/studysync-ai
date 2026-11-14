@@ -9,7 +9,7 @@ import ChatLog from './ChatLog'
 
 export function StarterQuestions({ onPick, disabled, footer }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center px-2 py-6 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center px-2 py-6 text-center">
       <span className="mb-3 grid size-12 place-items-center rounded-2xl bg-sky-100 text-sky-600">
         <MessageCircleQuestionMark className="size-6" aria-hidden="true" />
       </span>

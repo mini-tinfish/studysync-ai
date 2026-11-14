@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageCircleQuestionMark } from 'lucide-react'
 import AskWorkspace from '../components/ask/AskWorkspace'
 import ChatComposer from '../components/ask/ChatComposer'
 import ChatLog from '../components/ask/ChatLog'
+import { preloadMarkdown } from '../components/ask/markdownLoader'
 import PageHeader from '../components/common/PageHeader'
 import DemoBanner from '../components/generation/DemoBanner'
 import DemoButton from '../components/generation/DemoButton'
@@ -39,6 +40,9 @@ function DemoConversation({ onExit }) {
 
 export default function AskNotesPage() {
   const [isDemoOpen, setIsDemoOpen] = useState(false)
+
+  // Start loading the Markdown renderer for answers as soon as the page opens.
+  useEffect(() => preloadMarkdown(), [])
 
   function exitDemo() {
     setIsDemoOpen(false)
