@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Warm cream backgrounds */
+  --color-cream-50: #fdfbf7;
+  --color-cream-100: #f9f5ee;
+  --color-cream-200: #f1eadd;
+  --color-cream-300: #e6dccb;
+
+  /* Lavender / muted purple accents */
+  --color-lavender-50: #f6f2fd;
+  --color-lavender-100: #ede6fb;
+  --color-lavender-200: #dccff5;
+  --color-lavender-300: #c3aeec;
+  --color-lavender-400: #a68be0;
+  --color-lavender-500: #8b6dd1;
+  --color-lavender-600: #7556bc;
+  --color-lavender-700: #61469c;
+  --color-lavender-800: #4f3a7e;
+  --color-lavender-900: #3b2c5d;
+
+  /* Warm ink for text */
+  --color-ink-400: #8a8296;
+  --color-ink-500: #6b6478;
+  --color-ink-700: #3f3a4a;
+  --color-ink-900: #24202c;
+
+  --shadow-soft: 0 1px 2px rgb(59 44 93 / 0.04), 0 4px 16px -4px rgb(59 44 93 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(59 44 93 / 0.05), 0 12px 28px -8px rgb(59 44 93 / 0.16);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-cream-50 text-ink-900 font-sans;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-lavender-500;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
