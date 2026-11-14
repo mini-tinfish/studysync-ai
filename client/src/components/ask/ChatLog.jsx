@@ -80,6 +80,20 @@ export default function ChatLog({ messages, pending, documentText, onRetry, onEd
     autoScrolling.current = false
   }
 
+  // Messages can grow after they first render (the Markdown renderer loads lazily; tables and
+  // code blocks lay out). If the student was at the bottom, keep them there.
+  const contentRef = useRef(null)
+  useEffect(() => {
+    const el = scrollRef.current
+    const content = contentRef.current
+    if (!el || !content || typeof ResizeObserver === 'undefined') return undefined
+    const observer = new ResizeObserver(() => {
+      if (stickToBottom.current && !autoScrolling.current) el.scrollTop = el.scrollHeight
+    })
+    observer.observe(content)
+    return () => observer.disconnect()
+  }, [])
+
   const isEmpty = messages.length === 0 && !pending
 
   return (
@@ -94,8 +108,10 @@ export default function ChatLog({ messages, pending, documentText, onRetry, onEd
         aria-label="Conversation"
         aria-live="polite"
         tabIndex={0}
-        className="h-[min(60vh,560px)] min-h-72 space-y-4 overflow-y-auto px-3 py-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-lavender-300 sm:px-5"
+        className="h-[min(60vh,560px)] min-h-72 overflow-y-auto px-3 py-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-lavender-300 sm:px-5"
       >
+        {/* Observed for size changes (see ResizeObserver above). */}
+        <div ref={contentRef} className="flex min-h-full flex-col gap-4">
         {isEmpty
           ? emptyState
           : messages.map((message) => <ChatMessage key={message.id} message={message} documentText={documentText} />)}
@@ -143,6 +159,7 @@ export default function ChatLog({ messages, pending, documentText, onRetry, onEd
             )}
           </>
         )}
+        </div>
       </div>
 
       {hasUnseen && (

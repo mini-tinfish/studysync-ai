@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* `dark:` utilities apply under <html class="dark"> (set before first paint in index.html). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
@@ -31,10 +34,88 @@
   --shadow-lift: 0 2px 4px rgb(59 44 93 / 0.05), 0 12px 28px -8px rgb(59 44 93 / 0.16);
 }
 
+/*
+ * Dark theme. Tailwind v4 utilities read colors from these variables, so redefining them
+ * under html.dark re-themes every component without per-component color classes.
+ * Each scale flips direction: pastel shades (50–300, used as backgrounds/borders) become
+ * dark tints, and solid/text shades (400–900) become light. So `bg-lavender-600 text-white`
+ * (white = the card color in dark) stays a high-contrast button: light lavender, dark text.
+ */
+:root.dark {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --color-cream-50: #191622; /* page background */
+  --color-cream-100: #211c2c; /* sidebar, subtle panels */
+  --color-cream-200: #342d43; /* borders, dividers */
+  --color-cream-300: #463d58; /* stronger borders, inputs */
+  --color-white: #292434; /* cards */
+
+  /* Text */
+  --color-ink-900: #f4effa;
+  --color-ink-700: #ddd4ea;
+  --color-ink-500: #b8adc9;
+  --color-ink-400: #9d92b0;
+
+  /* Accent */
+  --color-lavender-50: #2a2340;
+  --color-lavender-100: #342a4f;
+  --color-lavender-200: #45396b;
+  --color-lavender-300: #5d4d8c;
+  --color-lavender-400: #9580d4;
+  --color-lavender-500: #ae95ec;
+  --color-lavender-600: #bea4f4;
+  --color-lavender-700: #ccb7f7;
+  --color-lavender-800: #ddcffa;
+  --color-lavender-900: #ece5fc;
+
+  /* Status colors */
+  --color-rose-50: #2f1b24;
+  --color-rose-100: #40202d;
+  --color-rose-200: #5c2b3d;
+  --color-rose-300: #7c3a51;
+  --color-rose-400: #ec8aa2;
+  --color-rose-500: #f28ca5;
+  --color-rose-600: #f5a3b6;
+  --color-rose-700: #f8b6c5;
+  --color-rose-800: #fac9d4;
+  --color-rose-900: #fde0e7;
+
+  --color-emerald-50: #142721;
+  --color-emerald-100: #183428;
+  --color-emerald-200: #1f4b38;
+  --color-emerald-400: #4fd1a0;
+  --color-emerald-600: #6fdfb4;
+  --color-emerald-700: #8ae8c4;
+  --color-emerald-800: #a8efd3;
+  --color-emerald-900: #c6f5e2;
+
+  --color-amber-50: #2b2215;
+  --color-amber-100: #3a2d17;
+  --color-amber-200: #5a451e;
+  --color-amber-300: #7d5f27;
+  --color-amber-500: #f0c06a;
+  --color-amber-600: #f4cc80;
+  --color-amber-700: #f7d898;
+  --color-amber-800: #f9e2b0;
+  --color-amber-900: #fbecc9;
+
+  --color-sky-100: #172a3d;
+  --color-sky-600: #8ccbf2;
+
+}
+
+/* Tailwind inlines the shadow values but reads their color from --tw-shadow-color:
+   use a deeper, neutral shadow on dark surfaces. */
+:root.dark :is(.shadow-soft, .shadow-lift) {
+  --tw-shadow-color: rgb(0 0 0 / 0.45);
+}
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
   }
 
   body {

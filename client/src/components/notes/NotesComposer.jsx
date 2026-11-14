@@ -1,5 +1,5 @@
-import { Suspense, lazy, useCallback, useEffect, useId, useRef, useState } from 'react'
-import { LoaderCircle, PencilLine, Save, X } from 'lucide-react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { PencilLine, Save, X } from 'lucide-react'
 import { useMaterials } from '../../context/materialsContext'
 import {
   MAX_TEXT_CHARS,
@@ -10,22 +10,8 @@ import {
 } from '../../utils/documents'
 import { notesToPlainText, plainTextToNotesContent, sanitizeNotesContent } from '../../utils/notes'
 import InlineAlert from '../common/InlineAlert'
+import LazyNotesEditor from './LazyNotesEditor'
 import { focusEditor } from './editorReady'
-
-// Tiptap/ProseMirror is large; load it only when the notes editor is first shown.
-const NotesEditor = lazy(() => import('./NotesEditor'))
-
-function EditorLoading() {
-  return (
-    <div
-      role="status"
-      className="flex min-h-72 items-center justify-center gap-2 rounded-2xl border border-cream-300 bg-white text-sm text-ink-500 sm:min-h-96"
-    >
-      <LoaderCircle className="size-5 animate-spin text-lavender-500" aria-hidden="true" />
-      Loading editor…
-    </div>
-  )
-}
 
 const KIND_LABELS = { studyGuide: 'study guide', flashcards: 'flashcards', quiz: 'practice quiz', chat: 'Ask My Notes conversation' }
 
@@ -181,16 +167,14 @@ function NotesForm({ document: doc, onSaved, onCancelEdit, onDirtyChange, editor
         <p id={notesLabelId} className="mb-1.5 text-sm font-semibold text-ink-700">
           Class notes
         </p>
-        <Suspense fallback={<EditorLoading />}>
-          <NotesEditor
-            initialContent={initial.json}
-            onChange={handleEditorChange}
-            labelledBy={notesLabelId}
-            describedBy={error ? `${counterId} ${errorId}` : counterId}
-            invalid={Boolean(error) || isOverLimit}
-            onReady={handleEditorReady}
-          />
-        </Suspense>
+        <LazyNotesEditor
+          initialContent={initial.json}
+          onChange={handleEditorChange}
+          labelledBy={notesLabelId}
+          describedBy={error ? `${counterId} ${errorId}` : counterId}
+          invalid={Boolean(error) || isOverLimit}
+          onReady={handleEditorReady}
+        />
         <p id={counterId} className={`mt-1.5 text-xs ${isOverLimit ? 'font-semibold text-rose-600' : 'text-ink-400'}`}>
           {formatNumber(text.length)} / {formatNumber(MAX_TEXT_CHARS)} characters of text &middot; minimum{' '}
           {MIN_TEXT_CHARS}
@@ -204,7 +188,7 @@ function NotesForm({ document: doc, onSaved, onCancelEdit, onDirtyChange, editor
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-ink-400">
-          Formatting stays in this browser tab. Only the plain text is sent for study guides and flashcards.
+          Notes and their formatting are saved in this browser. Only the plain text is sent to generate study tools.
         </p>
         <button
           type="submit"

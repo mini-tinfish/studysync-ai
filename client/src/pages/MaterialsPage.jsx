@@ -3,13 +3,23 @@ import InlineAlert from '../components/common/InlineAlert'
 import PageHeader from '../components/common/PageHeader'
 import AddMaterialTabs from '../components/materials/AddMaterialTabs'
 import DocumentLibrary from '../components/materials/DocumentLibrary'
+import DocumentPreview from '../components/materials/DocumentPreview'
 import StudyActions from '../components/materials/StudyActions'
 import NotesComposer from '../components/notes/NotesComposer'
 import { focusEditor } from '../components/notes/editorReady'
 import { useMaterials } from '../context/materialsContext'
 
 export default function MaterialsPage() {
-  const { documents, activeDocument, addDocument, removeDocument, selectDocument, getNotesDraft } = useMaterials()
+  const {
+    documents,
+    activeDocument,
+    addDocument,
+    removeDocument,
+    selectDocument,
+    getNotesDraft,
+    clearAllData,
+    storageStatus,
+  } = useMaterials()
   const actionsHeadingRef = useRef(null)
   const focusActionsOnRender = useRef(false)
 
@@ -17,12 +27,14 @@ export default function MaterialsPage() {
   const [activeTab, setActiveTab] = useState(() => (getNotesDraft() ? 'paste' : 'upload'))
   const [editingId, setEditingId] = useState(null)
   const [pendingEditId, setPendingEditId] = useState(null)
+  const [previewId, setPreviewId] = useState(null)
   const isEditorDirty = useRef(false)
   const editorRef = useRef(null)
   const addSectionRef = useRef(null)
 
   const editingDocument = documents.find((doc) => doc.id === editingId) ?? null
   const pendingEditDocument = documents.find((doc) => doc.id === pendingEditId) ?? null
+  const previewDocument = documents.find((doc) => doc.id === previewId) ?? null
 
   // When a student picks a document from the library, bring the study actions into view.
   useEffect(() => {
@@ -73,6 +85,11 @@ export default function MaterialsPage() {
   const handleDirtyChange = useCallback((dirty) => {
     isEditorDirty.current = dirty
   }, [])
+
+  function handleClearAll() {
+    exitEditing()
+    clearAllData()
+  }
 
   function handleRemove(id) {
     if (id === editingId) exitEditing()
@@ -145,8 +162,20 @@ export default function MaterialsPage() {
           onSelect={handleSelect}
           onRemove={handleRemove}
           onEdit={handleEditRequest}
+          onPreview={setPreviewId}
+          onClearAll={handleClearAll}
+          storageStatus={storageStatus}
         />
       </div>
+
+      {previewDocument && (
+        <DocumentPreview
+          key={previewDocument.id}
+          document={previewDocument}
+          onClose={() => setPreviewId(null)}
+          onEdit={handleEditRequest}
+        />
+      )}
     </>
   )
 }

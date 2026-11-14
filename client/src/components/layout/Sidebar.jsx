@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { Sparkles, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { NAV_ITEMS, routeHref } from '../../config/navigation'
 import Logo from '../common/Logo'
+import ThemeToggle from './ThemeToggle'
 
 export default function Sidebar({ activeRoute, isOpen, onDismiss, onNavigate }) {
   const closeButtonRef = useRef(null)
@@ -23,7 +24,7 @@ export default function Sidebar({ activeRoute, isOpen, onDismiss, onNavigate }) 
       <div
         aria-hidden="true"
         onClick={onDismiss}
-        className={`fixed inset-0 z-30 bg-lavender-900/30 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-30 bg-lavender-900/30 backdrop-blur-[2px] dark:bg-black/60 transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
@@ -88,12 +89,7 @@ export default function Sidebar({ activeRoute, isOpen, onDismiss, onNavigate }) 
           </ul>
         </nav>
 
-        <div className="m-3 rounded-2xl bg-lavender-50 p-4 ring-1 ring-lavender-100">
-          <p className="flex items-start gap-2 text-xs leading-relaxed text-lavender-800">
-            <Sparkles className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-            <span>Study smarter, not harder. Powered by AI.</span>
-          </p>
-        </div>
+        <ThemeToggle />
       </aside>
     </>
   )

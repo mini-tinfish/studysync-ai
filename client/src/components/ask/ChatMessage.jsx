@@ -1,9 +1,17 @@
+import { Suspense, lazy } from 'react'
 import { BookOpenCheck, CircleAlert, Quote, SearchX } from 'lucide-react'
 import { citationAppearsInText } from '../../utils/ask'
+import ErrorBoundary from '../common/ErrorBoundary'
 import SourceBadge from '../generation/SourceBadge'
 
-/** Assistant text: keep the model's paragraphs and line breaks, rendered as plain text (never HTML). */
-function AnswerText({ text }) {
+import { loadMarkdown } from './markdownLoader'
+
+// The Markdown renderer is only needed for answers; it loads on demand (and is preloaded
+// when Ask My Notes opens).
+const MarkdownAnswer = lazy(loadMarkdown)
+
+/** Plain-text fallback shown for a moment while the Markdown renderer loads. */
+function PlainAnswerText({ text }) {
   return (
     <div className="space-y-2 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-ink-900">
       {text.split(/\n{2,}/).map((paragraph, i) => (
@@ -84,7 +92,13 @@ export default function ChatMessage({ message, documentText }) {
             </span>
           </p>
         )}
-        <AnswerText text={message.content} />
+        {/* Markdown is rendered for display only; message.content (sent as history) is unchanged. */}
+        {/* If the renderer can't load, fall back to plain text instead of breaking the chat. */}
+        <ErrorBoundary fallback={() => <PlainAnswerText text={message.content} />}>
+        <Suspense fallback={<PlainAnswerText text={message.content} />}>
+          <MarkdownAnswer text={message.content} />
+        </Suspense>
+        </ErrorBoundary>
         <Citations citations={message.citations ?? []} documentText={documentText} />
       </div>
     </div>

@@ -24,7 +24,7 @@ export const DEMO_CONVERSATION = [
     origin: 'demo',
     answeredFromMaterial: true,
     content:
-      'Muscle cells do a lot of mechanical work, so they need far more ATP. More mitochondria means the cell can produce energy faster.\n\nYour notes connect this to energy demand: cells that work harder rely more heavily on cellular respiration.',
+      'Muscle cells do a lot of **mechanical work**, so they need far more ATP. More mitochondria means the cell can produce energy faster.\n\n**Key points from your notes:**\n\n1. Energy demand drives mitochondria count.\n2. Cells that work harder rely more on *cellular respiration*:\n   - muscle cells: high demand\n   - skin cells: lower demand\n3. The energy currency is `ATP`.',
     citations: ['Cells with high energy demands, such as muscle cells, contain many mitochondria.'],
   },
   { id: 'demo-u3', role: 'user', content: 'Who discovered mitochondria?' },
