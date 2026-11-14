@@ -10,6 +10,8 @@ export const MaterialsContext = createContext(null)
  * Ask My Notes: appendChatMessages(documentId, messages, { sourceText }) → saved?,
  *   clearChat(documentId), getChatDraft(documentId), setChatDraft(documentId, text).
  *   The conversation is getResult(documentId, 'chat').data.messages.
+ * Persistence: storageStatus ('loading' | 'saved' | 'error' | 'unavailable'), storageMessage,
+ *   isRestoring, retrySave(), clearAllData().
  */
 export function useMaterials() {
   const context = useContext(MaterialsContext)

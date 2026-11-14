@@ -204,7 +204,7 @@ function NotesForm({ document: doc, onSaved, onCancelEdit, onDirtyChange, editor
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-ink-400">
-          Formatting stays in this browser tab. Only the plain text is sent for study guides and flashcards.
+          Notes and their formatting are saved in this browser. Only the plain text is sent to generate study tools.
         </p>
         <button
           type="submit"

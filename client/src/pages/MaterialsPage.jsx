@@ -9,7 +9,16 @@ import { focusEditor } from '../components/notes/editorReady'
 import { useMaterials } from '../context/materialsContext'
 
 export default function MaterialsPage() {
-  const { documents, activeDocument, addDocument, removeDocument, selectDocument, getNotesDraft } = useMaterials()
+  const {
+    documents,
+    activeDocument,
+    addDocument,
+    removeDocument,
+    selectDocument,
+    getNotesDraft,
+    clearAllData,
+    storageStatus,
+  } = useMaterials()
   const actionsHeadingRef = useRef(null)
   const focusActionsOnRender = useRef(false)
 
@@ -73,6 +82,11 @@ export default function MaterialsPage() {
   const handleDirtyChange = useCallback((dirty) => {
     isEditorDirty.current = dirty
   }, [])
+
+  function handleClearAll() {
+    exitEditing()
+    clearAllData()
+  }
 
   function handleRemove(id) {
     if (id === editingId) exitEditing()
@@ -145,6 +159,8 @@ export default function MaterialsPage() {
           onSelect={handleSelect}
           onRemove={handleRemove}
           onEdit={handleEditRequest}
+          onClearAll={handleClearAll}
+          storageStatus={storageStatus}
         />
       </div>
     </>
