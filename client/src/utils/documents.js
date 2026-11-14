@@ -53,7 +53,11 @@ export function createUploadedDocument(apiResponse) {
   }
 }
 
-export function createPastedDocument({ title, text }) {
+/**
+ * Notes written in the editor. `text` is the plain text sent to the AI; `richContent`
+ * (sanitized editor JSON) is kept only in the browser so the notes can be reopened.
+ */
+export function createPastedDocument({ title, text, richContent = null }) {
   const trimmedText = text.trim()
   return {
     id: createId(),
@@ -66,7 +70,22 @@ export function createPastedDocument({ title, text }) {
     wordCount: countWords(trimmedText),
     truncated: false,
     text: trimmedText,
+    richContent,
     uploadedAt: new Date().toISOString(),
+    updatedAt: null,
+  }
+}
+
+/** Field changes for saving an edited note (pass to MaterialsProvider.updateDocument). */
+export function notesDocumentChanges({ title, text, richContent }) {
+  const trimmedText = text.trim()
+  return {
+    fileName: title.trim() || 'Untitled notes',
+    text: trimmedText,
+    richContent,
+    charCount: trimmedText.length,
+    wordCount: countWords(trimmedText),
+    updatedAt: new Date().toISOString(),
   }
 }
 

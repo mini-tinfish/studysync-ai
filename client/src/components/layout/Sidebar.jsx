@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Info, X } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 import { NAV_ITEMS, routeHref } from '../../config/navigation'
 import Logo from '../common/Logo'
 
@@ -90,11 +90,8 @@ export default function Sidebar({ activeRoute, isOpen, onDismiss, onNavigate }) 
 
         <div className="m-3 rounded-2xl bg-lavender-50 p-4 ring-1 ring-lavender-100">
           <p className="flex items-start gap-2 text-xs leading-relaxed text-lavender-800">
-            <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-            <span>
-              <strong className="font-semibold">Preview build.</strong> Uploads and AI features aren&rsquo;t
-              connected yet.
-            </span>
+            <Sparkles className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <span>Study smarter, not harder. Powered by AI.</span>
           </p>
         </div>
       </aside>

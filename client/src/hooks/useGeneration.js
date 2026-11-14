@@ -12,7 +12,7 @@ import { useMaterials } from '../context/materialsContext'
  *   'mock' when the server is in MOCK_AI mode, 'ai' otherwise, 'unknown' if health failed.
  * - Results are saved per document in MaterialsProvider, never shared across documents.
  */
-export function useGeneration({ documentId, kind }) {
+export function useGeneration({ documentId, kind, sourceText }) {
   const { getResult, saveResult } = useMaterials()
   const result = getResult(documentId, kind)
   const [status, setStatus] = useState('idle') // 'idle' | 'loading' | 'error'
@@ -39,9 +39,10 @@ export function useGeneration({ documentId, kind }) {
         ])
         const data = normalize(raw)
         const origin = health ? (health.mockMode ? 'mock' : 'ai') : 'unknown'
-        saveResult(documentId, kind, data, { origin })
+        // Not saved if the document's text changed while the request was running.
+        const saved = saveResult(documentId, kind, data, { origin, sourceText })
         setStatus('idle')
-        return true
+        return saved
       } catch (err) {
         if (err?.code === REQUEST_ABORTED) return false
         setError(
@@ -55,7 +56,7 @@ export function useGeneration({ documentId, kind }) {
         if (controllerRef.current === controller) controllerRef.current = null
       }
     },
-    [documentId, kind, saveResult],
+    [documentId, kind, sourceText, saveResult],
   )
 
   const cancel = useCallback(() => {

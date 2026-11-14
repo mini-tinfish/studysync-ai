@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MaterialsContext } from './materialsContext'
 
 /**
@@ -14,20 +14,54 @@ export default function MaterialsProvider({ children }) {
   const [activeId, setActiveId] = useState(null)
   const [results, setResults] = useState({}) // { [documentId]: { [kind]: { data, generatedAt } } }
 
-  const addDocument = useCallback((doc, { makeActive = true } = {}) => {
-    setDocuments((current) => [doc, ...current])
-    if (makeActive) setActiveId(doc.id)
+  // Latest documents for async callbacks (e.g. a generation finishing after an edit).
+  const documentsRef = useRef(documents)
+  useEffect(() => {
+    documentsRef.current = documents
+  }, [documents])
+
+  // Unsaved "new note" draft. A ref, not state: it only needs to survive the editor
+  // unmounting (tab or page switches) and must not re-render the app on every keystroke.
+  const notesDraftRef = useRef(null)
+  const getNotesDraft = useCallback(() => notesDraftRef.current, [])
+  const setNotesDraft = useCallback((draft) => {
+    notesDraftRef.current = draft
   }, [])
 
-  const removeDocument = useCallback((id) => {
-    setDocuments((current) => current.filter((doc) => doc.id !== id))
-    setActiveId((current) => (current === id ? null : current))
+  const clearResults = (id) =>
     setResults((current) => {
       if (!(id in current)) return current
       const next = { ...current }
       delete next[id]
       return next
     })
+
+  const addDocument = useCallback((doc, { makeActive = true } = {}) => {
+    setDocuments((current) => [doc, ...current])
+    if (makeActive) setActiveId(doc.id)
+  }, [])
+
+  /**
+   * Apply `changes` to a document. If its text changes, every generated result for it is
+   * discarded (it was built from the old text). Returns the kinds that were cleared.
+   */
+  const updateDocument = useCallback(
+    (id, changes) => {
+      const existing = documents.find((doc) => doc.id === id)
+      if (!existing) return { updated: false, clearedKinds: [] }
+      const textChanged = typeof changes.text === 'string' && changes.text !== existing.text
+      const clearedKinds = textChanged ? Object.keys(results[id] ?? {}) : []
+      setDocuments((current) => current.map((doc) => (doc.id === id ? { ...doc, ...changes, id } : doc)))
+      if (textChanged) clearResults(id)
+      return { updated: true, clearedKinds }
+    },
+    [documents, results],
+  )
+
+  const removeDocument = useCallback((id) => {
+    setDocuments((current) => current.filter((doc) => doc.id !== id))
+    setActiveId((current) => (current === id ? null : current))
+    clearResults(id)
   }, [])
 
   const selectDocument = useCallback((id) => setActiveId(id), [])
@@ -37,8 +71,12 @@ export default function MaterialsProvider({ children }) {
    * Each save is a new result with its own `setId`; anything tied to the previous
    * result (e.g. flashcard review progress) is discarded with it.
    * origin: 'ai' | 'mock' | 'unknown' — where the server said the content came from.
+   * sourceText: the text the request was made with; if the document has been edited
+   * since, the result is stale and is not saved. Returns whether it was saved.
    */
-  const saveResult = useCallback((documentId, kind, data, { origin = 'unknown' } = {}) => {
+  const saveResult = useCallback((documentId, kind, data, { origin = 'unknown', sourceText } = {}) => {
+    const doc = documentsRef.current.find((d) => d.id === documentId)
+    if (!doc || (sourceText !== undefined && doc.text !== sourceText)) return false
     const setId = globalThis.crypto?.randomUUID?.() ?? `set-${Date.now()}-${Math.random().toString(36).slice(2)}`
     setResults((current) => ({
       ...current,
@@ -47,6 +85,7 @@ export default function MaterialsProvider({ children }) {
         [kind]: { data, origin, setId, generatedAt: new Date().toISOString(), progress: null },
       },
     }))
+    return true
   }, [])
 
   /** Store UI progress (e.g. flashcard review state) on a result, only if it is still the same set. */
@@ -60,18 +99,38 @@ export default function MaterialsProvider({ children }) {
 
   const getResult = useCallback((documentId, kind) => results[documentId]?.[kind] ?? null, [results])
 
+  /** Kinds of generated content currently stored for a document, e.g. ['studyGuide']. */
+  const getResultKinds = useCallback((documentId) => Object.keys(results[documentId] ?? {}), [results])
+
   const value = useMemo(
     () => ({
       documents,
       activeDocument: documents.find((doc) => doc.id === activeId) ?? null,
       addDocument,
+      updateDocument,
       removeDocument,
       selectDocument,
       saveResult,
       saveProgress,
       getResult,
+      getResultKinds,
+      getNotesDraft,
+      setNotesDraft,
     }),
-    [documents, activeId, addDocument, removeDocument, selectDocument, saveResult, saveProgress, getResult],
+    [
+      documents,
+      activeId,
+      addDocument,
+      updateDocument,
+      removeDocument,
+      selectDocument,
+      saveResult,
+      saveProgress,
+      getResult,
+      getResultKinds,
+      getNotesDraft,
+      setNotesDraft,
+    ],
   )
 
   return <MaterialsContext.Provider value={value}>{children}</MaterialsContext.Provider>

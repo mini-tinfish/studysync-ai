@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { ClipboardPaste, CloudUpload } from 'lucide-react'
-import PasteNotesForm from './PasteNotesForm'
 import UploadDropzone from './UploadDropzone'
 
 const TABS = [
@@ -10,11 +9,17 @@ const TABS = [
 
 /**
  * Accessible tabs (WAI-ARIA tabs pattern: arrow keys / Home / End move between tabs).
- * Both panels stay mounted so a half-written note survives switching tabs.
+ * Controlled by the page so "Edit notes" can switch to the notes tab. Both panels stay
+ * mounted, so a half-written note survives switching tabs.
  */
-export default function AddMaterialTabs({ onAdded }) {
-  const [activeTab, setActiveTab] = useState('upload')
+export default function AddMaterialTabs({ activeTab, onTabChange, onAdded, notesPanel }) {
+  const setActiveTab = onTabChange
   const tabRefs = useRef({})
+
+  // The notes editor is heavy, so mount it the first time its tab opens; after that it
+  // stays mounted (hidden) so drafts survive switching tabs.
+  const [notesMounted, setNotesMounted] = useState(activeTab === 'paste')
+  if (activeTab === 'paste' && !notesMounted) setNotesMounted(true)
 
   function handleKeyDown(event) {
     const index = TABS.findIndex((tab) => tab.id === activeTab)
@@ -71,7 +76,7 @@ export default function AddMaterialTabs({ onAdded }) {
         <UploadDropzone onUploaded={onAdded} />
       </div>
       <div role="tabpanel" id="panel-paste" aria-labelledby="tab-paste" hidden={activeTab !== 'paste'}>
-        <PasteNotesForm onSaved={onAdded} />
+        {notesMounted && notesPanel}
       </div>
     </section>
   )

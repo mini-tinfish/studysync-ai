@@ -116,3 +116,11 @@ export function generateStudyGuide({ text, title }, { signal } = {}) {
 export function generateFlashcards({ text, count }, { signal } = {}) {
   return postJson('/api/flashcards', { text, count }, { signal, timeoutMs: AI_TIMEOUT_MS })
 }
+
+/**
+ * POST /api/quiz — body { text, count? (1–20), difficulty? ('easy' | 'medium' | 'hard') }.
+ * Returns { questions: [{ id, question, options[4], correctIndex, explanation }] }
+ */
+export function generateQuiz({ text, count, difficulty }, { signal } = {}) {
+  return postJson('/api/quiz', { text, count, difficulty }, { signal, timeoutMs: AI_TIMEOUT_MS })
+}
