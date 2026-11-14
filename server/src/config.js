@@ -19,7 +19,11 @@ export const config = {
       .split(',')
       .map((m) => m.trim())
       .filter(Boolean),
-    timeoutMs: toInt(process.env.AI_TIMEOUT_MS, 60_000),
+    // Overall limit per request, across all models. Must stay below the frontend's 90 s timeout.
+    timeoutMs: toInt(process.env.AI_TIMEOUT_MS, 85_000),
+    // Gemini "thinking" depth: MINIMAL | LOW | MEDIUM | HIGH. Empty = model default.
+    // LOW measured ~2x faster than the default with equally good study guides.
+    thinkingLevel: (process.env.GEMINI_THINKING_LEVEL ?? 'LOW').trim().toUpperCase(),
   },
 
   // Mock mode returns fixed sample data so the frontend can work without an API key.
